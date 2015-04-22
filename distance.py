@@ -1,3 +1,4 @@
+# -*- coding: latin-1 -*-
 __author__ = 'michaelcaraccio'
 
 import numpy as np
@@ -28,17 +29,5 @@ def minkowski_distance(px, py, p=2):
 
 if __name__ == '__main__':
 
-    a = 2
-    b = 8
-    print(euclidean(a,b))
-    #print(minkowski_distance(a,b))
-
-    a = np.array([ 1, 1, 1])
-    b = np.array([ 2, 4, 1])
-    print(euclidean(a,b))
-
-    p = Point(1, 1)
-    q = Point(1, 4)
-    print(minkowski_distance(p,q))
-
-    file = File("pos").from_file()
+    file = File().from_folder()
+    print(len(file))

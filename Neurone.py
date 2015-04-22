@@ -13,11 +13,11 @@ class Neurone:
         return self.valueOutput
 
     def calculateValue(self):
-
-    def setValue(self):
         self.valueOutput = 0
         for neuro in self.previousNeuros:
             self.valueOutput = neuro.getSum(self)
+    def setValue(self, value):
+        self.valueOutput = value
 
     def getWeight(self, neuro):
         return self.weightToNeuroList[neuro]

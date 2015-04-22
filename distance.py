@@ -6,6 +6,10 @@ import math
 from math import pow
 from Point import Point
 from File import File
+from Neurone import Neurone
+
+
+
 
 def euclidean(x, y):
     return np.linalg.norm(x-y)
@@ -29,5 +33,27 @@ def minkowski_distance(px, py, p=2):
 
 if __name__ == '__main__':
 
-    file = File().from_folder()
-    print(len(file))
+    uniqueWordList = File().from_folder()
+    wordNeurons = {}
+    intermediateNeurons = []
+
+    finalNeuron = Neurone()
+    m = 1   #Nombre de colonne cachées
+    n = 15  #Nombre de neurones par colonne
+
+    for x in range(0,m):
+        listCol = []
+        for y in range(0,n):
+            listCol.append(Neurone())
+        if x == 0:
+            finalNeuron.initNeuro(listCol)
+        else:
+            for neuro in intermediateNeurons[x-1]:
+                neuro.initNeuro(listCol)
+        intermediateNeurons.append(listCol)
+
+    for word in uniqueWordList:
+        wordNeurons[word] = Neurone
+
+
+

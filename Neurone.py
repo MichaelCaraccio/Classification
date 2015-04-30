@@ -5,9 +5,11 @@ class Neurone:
     def __init__(self):
         self.weightToNeuroList = {}
         self.previousNeuros = []
-        self.valueOutput
+        self.valueOutput = 0
+
+
     def getSum(self, neuro):
-        return self.valueOutput * self.weightToNeuroList[neuro]
+        return neuro.valueOutput * neuro.weightToNeuroList[self]
 
     def getValue(self):
         return self.valueOutput
@@ -15,7 +17,8 @@ class Neurone:
     def calculateValue(self):
         self.valueOutput = 0
         for neuro in self.previousNeuros:
-            self.valueOutput = neuro.getSum(self)
+            self.valueOutput += self.getSum(neuro)
+
     def setValue(self, value):
         self.valueOutput = value
 
@@ -30,3 +33,8 @@ class Neurone:
         for neuro in neuroList:
             self.previousNeuros.append(neuro)
             neuro.setWeight(self,uniform(-1,1))
+
+    def linkToWords(self, wordList):
+        for word in wordList:
+            self.previousNeuros.append(wordList[word])
+            wordList[word].setWeight(self, uniform(-1,1))

@@ -13,15 +13,16 @@ class File:
         self.filesContentUnique = []
         self.filesMerged = []
         self.folders = ["pos", "neg"]
+        self.fileContentList = {}
 
 
     def from_folder(self):
         for folder in self.folders:
             for file in os.listdir(folder):
                 if file.endswith(".txt"):
-
+                    self.fileContentList[file] = self.wordFromFile(folder+"/"+file)
                     # Get all words from file and Store them in an array
-                    self.filesContent.append(self.wordFromFile(folder+"/"+file))
+                    self.filesContent.append(self.fileContentList[file])
 
                     #self.wordFromFileWithDelimiter('tagged/neg/neg-0520.txt', '\t')
         self.mergeList()
@@ -34,11 +35,11 @@ class File:
         for sentences in self.filesContent:
             for words in sentences:
                 self.filesMerged.append(words)
-        print(len(self.filesMerged))
+        #print(len(self.filesMerged))
 
     def unique(self):
         self.filesMerged = list(set(self.filesMerged))
-        print(len(self.filesMerged))
+        #print(len(self.filesMerged))
 
     def clean(self):
         for words in self.filesMerged:

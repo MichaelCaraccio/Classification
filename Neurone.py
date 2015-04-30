@@ -9,6 +9,7 @@ class Neurone:
         self.intraWeight = uniform(-1,1)
         self.lastWeight = {}
         self.deltaWeight = {}
+        self.tempValue = 0
 
     def getSum(self, neuro):
         return neuro.valueOutput * neuro.weightToNeuroList[self]
@@ -24,6 +25,7 @@ class Neurone:
         self.valueOutput = self.intraWeight
         for neuro in self.previousNeuros:
             self.valueOutput += self.getSum(neuro)
+        self.tempValue = self.valueOutput
         self.setValue(sigmoid(self.valueOutput))
 
     def setValue(self, value):

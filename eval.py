@@ -10,9 +10,6 @@ def s(xTab, wTab, x0):
 		value += x*w
 	return value
 
-def y(s):
-	return 1/(1+exp(-s))
-
 
 def err(y, yCorrect):
 	return y*(1-y)*(yCorrect-y)

@@ -1,3 +1,5 @@
+__author__ = 'Christophe Bolinhas et Michael Caraccio'
+
 from random import uniform
 from eval import sigmoid, err
 
@@ -9,7 +11,10 @@ class Neurone:
         self.intraWeight = uniform(-1,1)
         self.lastWeight = {}
         self.deltaWeight = {}
+        self.listWords = []
+        self.isRelatedToWords = False
         self.tempValue = 0
+        self.localErr = 0
 
     def getSum(self, neuro):
         return neuro.valueOutput * neuro.weightToNeuroList[self]
@@ -23,10 +28,20 @@ class Neurone:
 
     def calculateValue(self):
         self.valueOutput = self.intraWeight
-        for neuro in self.previousNeuros:
-            self.valueOutput += self.getSum(neuro)
+        if not self.isRelatedToWords:
+            for neuro in self.previousNeuros:
+                self.valueOutput += self.getSum(neuro)
+        else:
+            for word in self.listWords:
+                self.valueOutput += self.getSum(word)
         self.tempValue = self.valueOutput
         self.setValue(sigmoid(self.valueOutput))
+
+    def setRelatedToWords(self, listWords):
+        self.listWords.clear()
+        for word in listWords:
+            self.listWords.append(word)
+        self.isRelatedToWords = True
 
     def setValue(self, value):
         self.valueOutput = value
@@ -44,8 +59,7 @@ class Neurone:
         self.weightToNeuroList[neuro] += deltaW
 
     def calculateIntraWeight(self):
-        for neuro in self.previousNeuros:
-            self.intraWeight += self.localErr
+        self.intraWeight += self.localErr
 
     def initNeuro(self, neuroList):
         for neuro in neuroList:

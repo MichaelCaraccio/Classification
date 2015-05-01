@@ -1,4 +1,4 @@
-__author__ = 'michaelcaraccio'
+__author__ = 'Christophe Bolinhas et Michael Caraccio'
 
 class Point:
     """ Create a new Point, at coordinates x, y """

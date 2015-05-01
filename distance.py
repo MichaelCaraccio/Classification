@@ -1,14 +1,10 @@
 # -*- coding: latin-1 -*-
-__author__ = 'michaelcaraccio'
+__author__ = 'Christophe Bolinhas et Michael Caraccio'
 
 import numpy as np
 import math
-from math import pow
-from Point import Point
 from File import File
 from Neurone import Neurone
-
-
 
 
 def euclidean(x, y):

@@ -1,6 +1,5 @@
-__author__ = 'Christophe Bolinhas & Michael Caraccio'
+__author__ = 'Christophe Bolinhas et Michael Caraccio'
 
-from math import exp
 import numpy as np
 
 

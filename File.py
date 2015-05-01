@@ -61,7 +61,6 @@ class File:
         for words in self.filesMerged:
             if words in self.frenchST:
                 self.filesMerged.remove(words)
-        print(len(self.filesMerged))
 
     def wordFromFile(self, filename):
         return re.findall(r'\w+', open(filename,'r',encoding='utf-8').read())

@@ -64,7 +64,6 @@ if __name__ == "__main__":
     print("\tRéseau interne composé de " + str(m) + " colonnes cachées et " + str(n) + " neuronnes par colonne")
     print("\tAlpha %.2f\n" % alpha)
 
-
     print("Lecture des fichiers : %f seconds" % (time.time() - start_time))
 
     #Creation du système de Neurones

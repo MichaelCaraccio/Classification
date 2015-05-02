@@ -42,7 +42,6 @@ class File:
                     # Get all words from file and Store them in an array
                     self.filesContent.append(self.fileContentList[file])
 
-                    #self.wordFromFileWithDelimiter('tagged/neg/neg-0520.txt', '\t')
         self.mergeList()
         self.unique()
         self.clean()

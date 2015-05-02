@@ -74,7 +74,7 @@ class File:
             listword = []
             for row in reader:
                 try:
-                    listword.append(row[2])
+                    listword.append(row[len(row)-1])
                 except:
                     print("delimiter faux")
 

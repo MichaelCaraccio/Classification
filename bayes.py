@@ -7,15 +7,19 @@ from collections import Counter
 
 def splitByClass(dataset):
 
-
+    iPos = 0
+    iNeg = 0
     pos = {}
     neg = {}
     for file in dataset:
         if 'neg' in file:
             neg[file] = dataset[file]
+            iNeg += len(neg[file])
         else:
             pos[file] = dataset[file]
-    return pos, neg
+            iPos+= len(pos[file])
+
+    return pos, neg, iPos, iNeg
 
 def mean(instances, fileCount):
     return instances/float(fileCount)
@@ -45,11 +49,16 @@ def getSets(dataset, pourcentage):
     return evalSet, listEntries
 
 
-def getDataByClass(dataset, pourcentage):
-    trainSet, testSet = getSets(dataset, pourcentage)
-    posTrainSet, negTrainSet = splitByClass(trainSet)
-    posTestSet, negTestSet = splitByClass(testSet)
-    return  posTrainSet, negTrainSet, posTestSet, negTestSet
+def getDataByClass(dataset, pourcentagePos, pourcentageNeg):
+    #trainSet, testSet = getSets(dataset, pourcentagePos)
+    #posTrainSet, negTrainSet = splitByClass(trainSet)
+    #posTestSet, negTestSet = splitByClass(testSet)
+    posFiles, negFiles, iPos, iNeg = splitByClass(dataset)
+    posTrainSet, posTestSet = getSets(posFiles,pourcentagePos)
+    negTrainSet, negTestSet = getSets(negFiles,pourcentageNeg)
+
+
+    return  posTrainSet, negTrainSet, posTestSet, negTestSet, iPos, iNeg
 
 def generateVector(wordList):
     wordVectors = {}
@@ -59,7 +68,7 @@ def generateVector(wordList):
 
 def normalize(entryLength, wordVectorList):
     for word in wordVectorList:
-        wordVectorList[word] /= entryLength
+        wordVectorList[word] /= entryLength+6
 
 def evaluateVectors(classSet, wordVectorList):
     #print(classSet)
@@ -67,7 +76,7 @@ def evaluateVectors(classSet, wordVectorList):
         for word in classSet[entry]:
             if word in wordVectorList.keys():
                 wordVectorList[word] += 1
-    #normalize(len(classSet),wordVectorList)
+    #normalize(len(wordVectorList),wordVectorList)
 
     return wordVectorList
 
@@ -86,12 +95,13 @@ def summarizeDataset(vectorSet, dataset):
 
     for word in vectorSet:
         vectorSummary[word] = {}
+        #vectorSummary[word]["count"] =
         vectorSummary[word]["mean"] = mean(vectorSet[word], len(dataset))
         vectorSummary[word]["ecartType"] = variance(counterFile, dataset, word, vectorSummary[word]["mean"])
 
     return vectorSummary
 
-def calculateProbability(x, mean, ecarttype, nbWords):
+def calculateProbability(x, mean, ecarttype):
 
     if x == 0 or mean == 0 or ecarttype == 0:
         return 1
@@ -105,37 +115,123 @@ def classProbability(vectorSet, vectorSummary):
         meanWord, ecartType = vectorSummary[word]["mean"], vectorSummary[word]["ecartType"]
         val = vectorSet[word]
         probability *= calculateProbability(val, meanWord, ecartType)
-        print(probability)
-        if probability == 0:
-            print(val)
-            print(meanWord)
-            print(ecartType)
-            print(word)
-            break
     return probability
 
+
+def vectorClassProbability(classVector, entry, iWords):
+    proba = 0
+    for word in entry:
+        if word in classVector.keys():
+            #print(classVector["heureux"])
+            proba += math.log10(((classVector[word]+1)/(iWords+len(classVector)))**entry[word])
+            #if classVector[word]["mean"] != 0:
+
+                #proba += math.log10(classVector[word]["mean"]**entry[word])
+                #proba += calculateProbability(entry[word],classVector[word]["mean"], classVector[word]["ecartType"])
+    return proba
+import time
 if __name__ == "__main__":
 
-    print("\n-----------------------------------------------------")
+    startTime = time.time()
+
     print("Classification de mots utilisant Bayes")
     print("-----------------------------------------------------\n")
 
     fileManager = File()
-    wordList = fileManager.from_folder()
+    #wordList = fileManager.from_folder()
+    wordList = fileManager.from_tagged_folder()
     fileList = fileManager.fileContentList
 
+
+    lightdisplay = True
     # Arguments
-    pourcentage = 0.7
-
-    posTrainSet, negTrainSet, posTestSet, negTestSet = getDataByClass(fileList, pourcentage)
-    baseVector = generateVector(wordList)
-    posVectors = evaluateVectors(posTrainSet, baseVector.copy())
-    negVectors = evaluateVectors(negTrainSet, baseVector.copy())
-
-    sumPos = summarizeDataset(posVectors, posTrainSet)
-    #sumNeg = summarizeDataset(negVectors, negTrainSet)
 
 
-    print(classProbability(posVectors,sumPos))
-    print("---------")
+    print("Split positif | Split négatif | Erreur positifs | Erreur négatif | Erreur moyenne")
+    for pi in range(10,95 , 5):
+
+        pourcentagePos = pi/100.0 #meilleur 0.5 / 0.8
+        pourcentageNeg = pi/100.0
+
+        startTime = time.time()
+
+        #print("Répartition des corpus par class : %.2f positifs et %.2f négatifs" % (pourcentagePos*100, pourcentageNeg*100))
+
+        if not lightdisplay:
+            print("\n-----------------------------------------------------")
+            print("Séparation en corpus d'entrainement et de test")
+            print("-----------------------------------------------------\n")
+
+
+        posTrainSet, negTrainSet, posTestSet, negTestSet, iPos, iNeg = getDataByClass(fileList, pourcentagePos, pourcentageNeg)
+        if not lightdisplay:
+            print("Corpus d'entrainement : %d" % (len(posTrainSet)+len(negTrainSet)))
+            print("Corpus de test : %d" % (len(posTestSet)+len(negTestSet)))
+
+
+        if not lightdisplay:
+            print("Génération du modèle de vecteur")
+            print("-----------------------------------------------------")
+        baseVector = generateVector(wordList)
+        if not lightdisplay:
+            print("Longueur du vecteur de base (nombre de mots) : %d" % len(baseVector))
+            print("\n-----------------------------------------------------")
+            print("Comptage des occurences dans les set d'entrainement")
+            print("-----------------------------------------------------")
+        posVectors = evaluateVectors(posTrainSet, baseVector.copy())
+        negVectors = evaluateVectors(negTrainSet, baseVector.copy())
+        if not lightdisplay:
+            print("temps d'exécution : %.2fs"%(time.time()-startTime))
+
+        if not lightdisplay:
+            print("\n-----------------------------------------------------")
+            print("Analyse probabilistique du set d'entrainement")
+            print("-----------------------------------------------------")
+        sumPos = summarizeDataset(posVectors, posTrainSet)
+        sumNeg = summarizeDataset(negVectors, negTrainSet)
+        if not lightdisplay:
+            print("temps d'exécution : %.2fs"%(time.time()-startTime))
+
+
+
+        if not lightdisplay:
+            print("\n-----------------------------------------------------")
+            print("Analyse d'erreur du corpus de test")
+            print("-----------------------------------------------------")
+
+        error = 0
+        #print(posVectors)
+        counterFilePos = {}
+        for file in posTestSet:
+            counterFilePos[file]= Counter(posTestSet[file])
+        counterFileNeg = {}
+        for file in negTestSet:
+            counterFileNeg[file] = Counter(negTestSet[file])
+        for file in counterFilePos:
+            posProb = vectorClassProbability(posVectors,counterFilePos[file], iPos)
+            negProb = vectorClassProbability(negVectors,counterFilePos[file], iNeg)
+            if posProb < negProb:
+                error+=1
+        tempError = error
+        errorPos = error/(len(counterFilePos))
+
+        #print(str(errorPos*100)+ "% d'erreur sur le corpus de test positif")
+
+        for file in counterFileNeg:
+            posProb = vectorClassProbability(posVectors,counterFileNeg[file], iPos)
+            negProb = vectorClassProbability(negVectors,counterFileNeg[file], iNeg)
+            if posProb > negProb:
+                error+=1
+        errorNeg = (error-tempError)/(len(counterFileNeg))
+        #print(str(errorNeg*100)+ "% d'erreur sur le corpus de test négatif")
+        if not lightdisplay:
+            print("\n-----------------------------------------------------")
+        print("%d%%\t%d%%\t%.2f%%\t%.2f%%\t%.2f%%\t%.2f"  % (pourcentagePos*100, pourcentageNeg*100,errorPos*100,errorNeg*100,((errorPos+errorNeg)/2*100),(time.time()-startTime)))
+
+
+        #print("temps d'exécution : %.2fs"%(time.time()-startTime))
+
+
+    #print(classProbability(posVectors,sumPos))
+    #print("---------")
     #aaprint(sumNeg)
